@@ -11,7 +11,7 @@ using System.Windows.Input;
 
 namespace FriendStorage.UI.ViewModel
 {
-    public class NavigationItemViewModel
+    public class NavigationItemViewModel : ViewModelBase
     {
         private IEventAggregator _eventAggregator;
 
@@ -29,7 +29,19 @@ namespace FriendStorage.UI.ViewModel
                 Publish(Id);
         }
 
-        public string DisplayMember { get; private set; }
+        private string _displayMember;
+        public string DisplayMember
+        {
+            get
+            {
+                return _displayMember;
+            }
+            set
+            {
+                _displayMember = value;
+                OnPropertyChanged("DisplayMember");
+            }
+        }
         public int Id { get; private set; }
 
         public ICommand OpenFriendEditViewCommand { get; private set; }

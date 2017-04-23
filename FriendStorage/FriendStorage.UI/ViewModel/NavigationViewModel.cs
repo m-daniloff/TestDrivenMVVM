@@ -1,7 +1,10 @@
 ﻿using FriendStorage.Model;
 using FriendStorage.UI.DataProvider;
+using FriendStorage.UI.Events;
 using Prism.Events;
 using System.Collections.ObjectModel;
+using System;
+using System.Linq;
 
 namespace FriendStorage.UI.ViewModel
 {
@@ -14,8 +17,16 @@ namespace FriendStorage.UI.ViewModel
         {
             _dataProvider = dataProvider;
             _eventAggregator = eventAggregator;
+            _eventAggregator.GetEvent<FriendSavedEvent>().Subscribe(SubscribeOnFriendSave);
             Friends = new ObservableCollection<NavigationItemViewModel>();
         }
+
+        private void SubscribeOnFriendSave(Friend friend)
+        {
+            var navigationItem = Friends.Single(n => n.Id == friend.Id);
+            navigationItem.DisplayMember = $"{friend.FirstName} {friend.LastName}";
+        }
+
         public void Load()
         {
             Friends.Clear();

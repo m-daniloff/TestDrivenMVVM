@@ -1,4 +1,5 @@
 ﻿using FriendStorage.Model;
+using FriendStorage.UI.Wrapper;
 
 namespace FriendStorage.UI.ViewModel
 {
@@ -6,6 +7,6 @@ namespace FriendStorage.UI.ViewModel
     {
         void Load(int friendId);
 
-        Friend Friend { get; }
+        FriendWrapper Friend { get; }
     }
 }
