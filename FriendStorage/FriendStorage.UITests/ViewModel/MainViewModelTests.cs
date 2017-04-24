@@ -35,10 +35,10 @@ namespace FriendStorage.UITests.ViewModel
         {
             var friendEditViewModelMock = new Mock<IFriendEditViewModel>();
             friendEditViewModelMock.Setup(vm => vm.Load(It.IsAny<int>()))
-                .Callback<int>(friendId =>
+                .Callback<int?>(friendId =>
                 {
                     friendEditViewModelMock.Setup(vm => vm.Friend)
-                    .Returns(new FriendWrapper (new Friend { Id = friendId }));
+                    .Returns(new FriendWrapper (new Friend { Id = friendId.Value }));
                 });
             _friendEditViewModelMocks.Add(friendEditViewModelMock);
             return friendEditViewModelMock.Object;
@@ -60,6 +60,17 @@ namespace FriendStorage.UITests.ViewModel
             var friendEditVm = _viewModel.FriendEditViewModels.First();
             Assert.Equal(friendEditVm, _viewModel.SelectedFriendEditViewModel);
             _friendEditViewModelMocks.First().Verify(vm => vm.Load(friendId), Times.Once);
+        }
+
+        [Fact]
+        public void ShouldAddFriendEditViewModelAndLoadWithIdNullAndSelectIt()
+        {
+            _viewModel.AddFriendCommand.Execute(null);
+            Assert.Equal(1, _viewModel.FriendEditViewModels.Count);
+
+            var friendEditVm = _viewModel.FriendEditViewModels.First();
+            Assert.Equal(friendEditVm, _viewModel.SelectedFriendEditViewModel);
+            _friendEditViewModelMocks.First().Verify(vm => vm.Load(null), Times.Once);
         }
 
         [Fact]
