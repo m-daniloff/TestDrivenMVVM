@@ -14,14 +14,18 @@ namespace FriendStorage.UITests.ViewModel
     {
         private NavigationViewModel _viewModel;
         private FriendSavedEvent _friendSavedEvent;
+        private FriendDeletedEvent _friendDeletedEvent;
 
         public NavigationViewModelTests()
         {
             _friendSavedEvent = new FriendSavedEvent();
+            _friendDeletedEvent = new FriendDeletedEvent();
             var eventAggregatorMock = new Mock<IEventAggregator>();
 
             eventAggregatorMock.Setup(ea => ea.GetEvent<FriendSavedEvent>())
                 .Returns(_friendSavedEvent);
+            eventAggregatorMock.Setup(ea => ea.GetEvent<FriendDeletedEvent>())
+                .Returns(_friendDeletedEvent);
 
             var navigationDataProviderMock = new Mock<INavigationDataProvider>();
             navigationDataProviderMock.Setup(dp => dp.GetAllFriends())
@@ -97,6 +101,16 @@ namespace FriendStorage.UITests.ViewModel
             var addedItem = _viewModel.Friends.SingleOrDefault(f => f.Id == newFriendId);
             Assert.NotNull(addedItem);
             Assert.Equal("Anna Huber", addedItem.DisplayMember);
+        }
+
+        [Fact]
+        public void ShouldRemoveNavigationItemWhenFriendIsDeleted()
+        {
+            _viewModel.Load();
+            var deletedFriendId = _viewModel.Friends.First().Id;
+            _friendDeletedEvent.Publish(deletedFriendId);
+            Assert.Equal(1, _viewModel.Friends.Count);
+            Assert.NotEqual(deletedFriendId, _viewModel.Friends.Single().Id);
         }
     }
 }

@@ -20,20 +20,9 @@ namespace FriendStorage.UI.ViewModel
             this._dataProvider = dataProvider;
             _eventAggregator = eventAggregator;
             SaveCommand = new DelegateCommand(OnSaveExecute, OnSaveCanExecute);
+            DeleteCommand = new DelegateCommand(OnDeleteExecute, OnDeleteCanExecute);
         }
-
-        private bool OnSaveCanExecute(object arg)
-        {
-            return Friend != null && Friend.IsChanged;
-        }
-
-        private void OnSaveExecute(object obj)
-        {
-            _dataProvider.SaveFriend(Friend.Model);
-            Friend.AcceptChanges();
-            _eventAggregator.GetEvent<FriendSavedEvent>().Publish(Friend.Model);
-        }
-
+        
         public FriendWrapper Friend
         {
             get
@@ -49,6 +38,7 @@ namespace FriendStorage.UI.ViewModel
         }
 
         public ICommand SaveCommand { get; private set; }
+        public ICommand DeleteCommand { get; private set; }
 
         public void Load(int? friendId)
         {
@@ -58,12 +48,42 @@ namespace FriendStorage.UI.ViewModel
 
             Friend = new FriendWrapper(friend);
             Friend.PropertyChanged += Friend_PropertyChanged;
-            ((DelegateCommand)SaveCommand).RaiseCanExecuteChanged();
+            InvalidateCommands();
         }
 
         private void Friend_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
-            ((DelegateCommand)SaveCommand).RaiseCanExecuteChanged();
+            InvalidateCommands();
         }
+
+        private void InvalidateCommands()
+        {
+            ((DelegateCommand)SaveCommand).RaiseCanExecuteChanged();
+            ((DelegateCommand)DeleteCommand).RaiseCanExecuteChanged();
+        }
+
+        private bool OnDeleteCanExecute(object arg)
+        {
+            return Friend != null && Friend.Id > 0;
+        }
+
+        private void OnDeleteExecute(object obj)
+        {
+            _dataProvider.DeleteFriend(Friend.Id);
+            _eventAggregator.GetEvent<FriendDeletedEvent>().Publish(Friend.Id);
+        }
+
+        private bool OnSaveCanExecute(object arg)
+        {
+            return Friend != null && Friend.IsChanged;
+        }
+
+        private void OnSaveExecute(object obj)
+        {
+            _dataProvider.SaveFriend(Friend.Model);
+            Friend.AcceptChanges();
+            _eventAggregator.GetEvent<FriendSavedEvent>().Publish(Friend.Model);
+        }
+
     }
 }
