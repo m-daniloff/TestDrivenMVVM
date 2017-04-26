@@ -6,6 +6,7 @@ using FriendStorage.UI.Command;
 using FriendStorage.UI.Wrapper;
 using Prism.Events;
 using FriendStorage.UI.Events;
+using FriendStorage.UI.Dialogs;
 
 namespace FriendStorage.UI.ViewModel
 {
@@ -14,11 +15,14 @@ namespace FriendStorage.UI.ViewModel
         private IFriendDataProvider _dataProvider;
         private FriendWrapper _friend;
         private IEventAggregator _eventAggregator;
+        private IMessageDialogService _messageDialogService;
 
-        public FriendEditViewModel(IFriendDataProvider dataProvider, IEventAggregator eventAggregator)
+        public FriendEditViewModel(IFriendDataProvider dataProvider, IEventAggregator eventAggregator, 
+            IMessageDialogService messageDialogService)
         {
             this._dataProvider = dataProvider;
             _eventAggregator = eventAggregator;
+            _messageDialogService = messageDialogService;
             SaveCommand = new DelegateCommand(OnSaveExecute, OnSaveCanExecute);
             DeleteCommand = new DelegateCommand(OnDeleteExecute, OnDeleteCanExecute);
         }
@@ -69,8 +73,13 @@ namespace FriendStorage.UI.ViewModel
 
         private void OnDeleteExecute(object obj)
         {
-            _dataProvider.DeleteFriend(Friend.Id);
-            _eventAggregator.GetEvent<FriendDeletedEvent>().Publish(Friend.Id);
+            var result = _messageDialogService.ShowYesNoDialog("Delete Friend",
+                $"Do you really want to delete the friend '{Friend.FirstName} {Friend.LastName}'");
+            if (result == MessageDialogResult.Yes)
+            {
+                _dataProvider.DeleteFriend(Friend.Id);
+                _eventAggregator.GetEvent<FriendDeletedEvent>().Publish(Friend.Id);
+            }            
         }
 
         private bool OnSaveCanExecute(object arg)

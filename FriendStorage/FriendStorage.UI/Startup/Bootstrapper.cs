@@ -9,6 +9,7 @@ using FriendStorage.UI.DataProvider;
 using FriendStorage.DataAccess;
 using FriendStorage.UI.View;
 using Prism.Events;
+using FriendStorage.UI.Dialogs;
 
 namespace FriendStorage.UI.Startup
 {
@@ -17,6 +18,9 @@ namespace FriendStorage.UI.Startup
         public IContainer Bootstrap()
         {
             var builder = new ContainerBuilder();
+
+            builder.RegisterType<MessageDialogService>()
+                .As<IMessageDialogService>();
 
             builder.RegisterType<EventAggregator>()
                 .As<IEventAggregator>().SingleInstance();
